@@ -8,7 +8,6 @@ import StudentsPage from "./pages/StudentsPage";
 import AddStudentPage from "./pages/AddStudentPage";
 import StudentInfoPage from "./pages/StudentInfoPage";
 import EditStudentPage from "./pages/EditStudentPage";
-import DeleteStudentPage from "./pages/DeleteStudentPage";
 import AdminPage from "./pages/AdminPage";
 
 // Layout có Navbar trên cùng và Sidebar bên trái
@@ -56,7 +55,6 @@ export default function App() {
           <Route path="/students/add" element={<AddStudentPage />} />
           <Route path="/students/info/:id" element={<StudentInfoPage />} />
           <Route path="/students/edit/:id" element={<EditStudentPage />} />
-          <Route path="/students/delete/:id" element={<DeleteStudentPage />} />
           <Route path="/admin" element={<AdminPage />} />
         </Route>
       </Routes>

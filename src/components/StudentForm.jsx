@@ -13,7 +13,7 @@ export default function StudentForm({
     gender: "MALE",
     dateOfBirth: "",
     address: "",
-    userId: "" // chỉ dùng khi thêm
+    userId: "" // chỉ dùng khi thêm mới
   });
   const [errors, setErrors] = useState({});
   const { token } = useContext(AuthContext);
@@ -25,6 +25,7 @@ export default function StudentForm({
   const validateForm = () => {
     const newErrors = {};
     const today = new Date();
+
     if (!form.fullName.trim()) newErrors.fullName = "Họ tên không được để trống";
     if (!form.dateOfBirth) {
       newErrors.dateOfBirth = "Ngày sinh bắt buộc";
@@ -33,6 +34,7 @@ export default function StudentForm({
     }
     if (!form.address.trim()) newErrors.address = "Địa chỉ không được để trống";
     if (!initialData && !form.userId.trim()) newErrors.userId = "User ID bắt buộc";
+
     return newErrors;
   };
 
@@ -54,6 +56,15 @@ export default function StudentForm({
 
   return (
     <form onSubmit={handleSubmit} className="card shadow p-3">
+      {/* ID hiển thị nhỏ, không cho nhập */}
+      {form.id && (
+        <div className="mb-2 d-flex align-items-center">
+          <label className="form-label me-2 mb-0">ID Sinh viên:</label>
+          <span className="fw">{form.id}</span>
+        </div>
+
+      )}
+
       <input
         className="form-control mb-2"
         value={form.fullName}
@@ -101,7 +112,7 @@ export default function StudentForm({
       )}
 
       <div className="text-center mt-3">
-        <button type="submit" className="btn btn-primary btn-sm  px-4 py-2">
+        <button type="submit" className="btn btn-primary btn-sm px-4 py-2">
           {submitLabel}
         </button>
       </div>

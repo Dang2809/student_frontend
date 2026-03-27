@@ -17,6 +17,12 @@ export const getStudentById = async (id, token) => {
   });
 };
 
+export const getStudentByName = async (name, token) => {
+  return axios.get(`${API_URL}/search?name=${encodeURIComponent(name)}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+};
+
 // Thêm sinh viên mới
 export const createStudent = async (student, userId, token) => {
   return axios.post(`${API_URL}?userId=${userId}`, student, {

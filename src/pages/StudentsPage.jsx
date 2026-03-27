@@ -1,8 +1,7 @@
 import { useEffect, useState, useContext } from "react";
-import { getAllStudents } from "../api/studentApi";
+import { getAllStudents, deleteStudent } from "../api/studentApi";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 export default function StudentsPage() {
@@ -11,6 +10,7 @@ export default function StudentsPage() {
 
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [alert, setAlert] = useState(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(6);
@@ -27,13 +27,28 @@ export default function StudentsPage() {
         const res = await getAllStudents(token);
         setStudents(res.data?.data || []);
       } catch (err) {
-        alert("Không thể tải danh sách sinh viên: " + err.message);
+        setAlert({ type: "danger", text: "Không thể tải danh sách sinh viên: " + err.message });
       } finally {
         setLoading(false);
       }
     };
     fetchStudents();
   }, [isAdmin, token]);
+
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm(`Bạn có chắc chắn muốn xóa sinh viên ID: ${id}?`);
+    if (!confirmed) return;
+
+    try {
+      await deleteStudent(id, token);
+      setAlert({ type: "success", text: `Xóa sinh viên ID: ${id} thành công!` });
+      setStudents(students.filter((s) => s.id !== id));
+    } catch (err) {
+      setAlert({ type: "danger", text: "Không thể xóa sinh viên: " + err.message });
+    } finally {
+      setTimeout(() => setAlert(null), 5000);
+    }
+  };
 
   if (loading) return <p className="text-center mt-5">Đang tải dữ liệu...</p>;
 
@@ -53,45 +68,28 @@ export default function StudentsPage() {
   const indexOfLastStudent = currentPage * pageSize;
   const indexOfFirstStudent = indexOfLastStudent - pageSize;
   const currentStudents = students.slice(indexOfFirstStudent, indexOfLastStudent);
-
   const totalPages = Math.ceil(students.length / pageSize);
-
-  const goToPage = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
 
   return (
     <div className="container mt-5">
-      {/* Tiêu đề trên cùng bên trái */}
-      <h2 className="mb-4">Xem danh sách sinh viên</h2>
+      <h2 className="mb-4 text-center">Danh sách sinh viên</h2>
 
-      {/* Thanh công cụ phía trên bảng */}
-      <div className="d-flex justify-content-between mb-3">
-        {/* Bên trái: nút trở về */}
-        <div>
-          <button
-            className="btn btn-secondary"
-            onClick={() => navigate("/homepage")}
-          >
-            Trở về trang chủ
-          </button>
+      {alert && (
+        <div className={`alert alert-${alert.type} text-center`}>
+          {alert.text}
         </div>
+      )}
 
-        {/* Bên phải: nút CRUD */}
+      {/* Thanh công cụ trên cùng */}
+      <div className="d-flex justify-content-between mb-3">
+        <button className="btn btn-secondary" onClick={() => navigate("/homepage")}>
+          Trở về trang chủ
+        </button>
         <div className="d-flex gap-2">
           <Link to="/students/add" className="btn btn-success">
             <i className="bi bi-plus-circle"></i> Thêm
           </Link>
-          <Link to="/students/edit/1" className="btn btn-warning">
-            <i className="bi bi-pencil-square"></i> Sửa
-          </Link>
-          <Link to="/students/delete/1" className="btn btn-danger">
-            <i className="bi bi-trash"></i> Xóa
-          </Link>
         </div>
-
       </div>
 
       {/* Bảng danh sách sinh viên */}
@@ -105,9 +103,10 @@ export default function StudentsPage() {
               <th>Ngày sinh</th>
               <th>Địa chỉ</th>
               <th>User ID</th>
+              <th>Hành động</th>
             </tr>
           </thead>
-          <tbody>
+            <tbody>
             {currentStudents.length > 0 ? (
               currentStudents.map((s) => (
                 <tr key={s.id}>
@@ -117,13 +116,25 @@ export default function StudentsPage() {
                   <td>{s.dateOfBirth}</td>
                   <td>{s.address}</td>
                   <td>{s.userId}</td>
+                  <td>
+                    <Link
+                      to={`/students/edit/${s.id}`}
+                      className="btn btn-warning btn-sm me-2"
+                    >
+                      <i className="bi bi-pencil-square"></i> Sửa
+                    </Link>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => handleDelete(s.id)}
+                    >
+                      <i className="bi bi-trash"></i> Xóa
+                    </button>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="text-center">
-                  Không có dữ liệu
-                </td>
+                <td colSpan="7" className="text-center">Không có dữ liệu</td>
               </tr>
             )}
           </tbody>
@@ -134,19 +145,18 @@ export default function StudentsPage() {
       <div className="d-flex justify-content-center align-items-center mt-3">
         <button
           className="btn btn-outline-primary me-2"
-          onClick={() => goToPage(currentPage - 1)}
+          onClick={() => setCurrentPage(currentPage - 1)}
           disabled={currentPage === 1}
         >
           Trang trước
         </button>
-        <span>
-          Trang {currentPage} / {totalPages}
-        </span>
+        <span>Trang {currentPage} / {totalPages}</span>
         <button
           className="btn btn-outline-primary ms-2"
-          onClick={() => goToPage(currentPage + 1)}
+          onClick={() => setCurrentPage(currentPage + 1)}
           disabled={currentPage === totalPages}
-        >Trang sau
+        >
+          Trang sau
         </button>
       </div>
     </div>
