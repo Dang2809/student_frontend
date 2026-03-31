@@ -35,6 +35,7 @@ export default function LoginPage() {
 
   return (
     <div className="container mt-5">
+      <div className="col-md-6 mx-auto">
       <div className="card shadow">
         <div className="card-body">
           <h2 className="text-center mb-4">Đăng nhập</h2>
@@ -59,6 +60,7 @@ export default function LoginPage() {
             </button>
           </form>
         </div>
+      </div>
       </div>
     </div>
   );

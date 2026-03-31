@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { promoteToAdmin } from "../api/authApi";
-import { AuthContext, checkAdmin } from "../context/AuthContext";
+import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -9,30 +9,12 @@ export default function AdminPage() {
   const { token, role } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // Kiểm tra quyền admin
-  const isAdmin = checkAdmin(role);
 
     // Nếu chưa đăng nhập
     if (!token) {
     return <h2 className="text-center mt-5">Vui lòng đăng nhập tài khoản Admin để sử dụng chức năng này</h2>;
   }
 
-  // Nếu đã đăng nhập nhưng không phải admin
-  if (!isAdmin) {
-    return (
-      <div className="container mt-5 text-center">
-        <div className="alert alert-danger mb-3">
-          Bạn không có quyền truy cập chức năng này!
-        </div>
-        <button
-          className="btn btn-primary"
-          onClick={() => navigate("/homepage")}
-        >
-          Trở về trang chủ
-        </button>
-      </div>
-    );
-  }
 
   // Hàm nâng quyền
   const handlePromote = async () => {
@@ -60,8 +42,8 @@ export default function AdminPage() {
             <button className="btn btn-warning btn-sm" onClick={handlePromote}>
               Nâng quyền lên Admin
             </button>
-            <button className="btn btn-secondary btn-sm" onClick={() => navigate("/homepage")}>
-              Trở về trang chủ
+            <button className="btn btn-secondary btn-sm" onClick={() => navigate("/users")}>
+              Trở về quản lý user
             </button>
           </div>
         </div>

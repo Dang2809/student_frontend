@@ -106,7 +106,7 @@ export default function StudentsPage() {
               <th>Hành động</th>
             </tr>
           </thead>
-            <tbody>
+          <tbody>
             {currentStudents.length > 0 ? (
               currentStudents.map((s) => (
                 <tr key={s.id}>
@@ -141,23 +141,43 @@ export default function StudentsPage() {
         </table>
       </div>
 
-      {/* Phân trang */}
-      <div className="d-flex justify-content-center align-items-center mt-3">
-        <button
-          className="btn btn-outline-primary me-2"
-          onClick={() => setCurrentPage(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          Trang trước
-        </button>
-        <span>Trang {currentPage} / {totalPages}</span>
-        <button
-          className="btn btn-outline-primary ms-2"
-          onClick={() => setCurrentPage(currentPage + 1)}
-          disabled={currentPage === totalPages}
-        >
-          Trang sau
-        </button>
+      {/* Phân trang kiểu Bootstrap, nằm chính giữa */}
+      <div className="d-flex justify-content-center mt-3">
+        <nav>
+          <ul className="pagination">
+            <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+              <button
+                className="page-link"
+                onClick={() => setCurrentPage(currentPage - 1)}
+              >
+                Trang trước
+              </button>
+            </li>
+
+            {Array.from({ length: totalPages }, (_, i) => (
+              <li
+                key={i + 1}
+                className={`page-item ${currentPage === i + 1 ? "active" : ""}`}
+              >
+                <button
+                  className="page-link"
+                  onClick={() => setCurrentPage(i + 1)}
+                >
+                  {i + 1}
+                </button>
+              </li>
+            ))}
+
+            <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+              <button
+                className="page-link"
+                onClick={() => setCurrentPage(currentPage + 1)}
+              >
+                Trang sau
+              </button>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   );

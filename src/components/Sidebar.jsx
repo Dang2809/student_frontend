@@ -15,7 +15,7 @@ export default function Sidebar() {
           <Link to="/students" className="nav-link text-white">Danh sách sinh viên</Link>
         </li>
         <li className="nav-item mb-2">
-          <Link to="/admin" className="nav-link text-white">Nâng quyền User</Link>
+          <Link to="/users" className="nav-link text-white">Quản lý User</Link>
         </li>
       </ul>
     </div>

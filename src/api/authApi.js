@@ -21,3 +21,23 @@ export const promoteToAdmin = async (username, token) => {
   );
   return res.data;
 };
+
+export const getUsers = async (token) => {
+  return axios.get(`${API_URL}/users`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+};
+
+export const approveUser = async (username, token) => {
+  const res = await axios.post(`${API_URL}/approve/${username}`, {}, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.data;
+};
+
+export const rejectUser = async (username, token) => {
+  const res = await axios.post(`${API_URL}/reject/${username}`, {}, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.data;
+};

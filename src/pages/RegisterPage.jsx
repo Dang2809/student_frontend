@@ -18,7 +18,7 @@ export default function RegisterPage() {
 
   try {
     await register(username, password);
-    alert("Đăng ký thành công!");
+    alert("Đăng ký thành công! Tài khoản của bạn đang chờ xét duyệt.");
     navigate("/login");
   } catch (error) {
     console.error("Đăng ký thất bại:", error);
@@ -28,6 +28,7 @@ export default function RegisterPage() {
 
   return (
     <div className="container mt-5">
+      <div className="col-md-6 mx-auto">
       <div className="card shadow">
         <div className="card-body">
           <h2 className="text-center mb-4">Đăng ký</h2>
@@ -52,6 +53,7 @@ export default function RegisterPage() {
             </button>
           </form>
         </div>
+      </div>
       </div>
     </div>
   );
