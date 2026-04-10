@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import { getAllStudents, deleteStudent } from "../api/studentApi";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext, checkAdmin } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
@@ -13,27 +13,30 @@ export default function StudentsPage() {
   const [alert, setAlert] = useState(null);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(6);
+  const [pageSize] = useState(30);
 
-  const isAdmin = role?.toString().toUpperCase().includes("ADMIN");
+  const [searchTerm, setSearchTerm] = useState(""); // thêm state cho tìm kiếm
+
+  const isAdmin = checkAdmin(role);
 
   useEffect(() => {
-    const fetchStudents = async () => {
-      if (!isAdmin) {
-        setLoading(false);
-        return;
-      }
-      try {
-        const res = await getAllStudents(token);
-        setStudents(res.data?.data || []);
-      } catch (err) {
-        setAlert({ type: "danger", text: "Không thể tải danh sách sinh viên: " + err.message });
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStudents();
-  }, [isAdmin, token]);
+  const fetchStudents = async () => {
+    if (!isAdmin) {
+      setLoading(false);
+      return;
+    }
+    try {
+      const studentsData = await getAllStudents(token);
+      setStudents(Array.isArray(studentsData) ? studentsData : []);
+    } catch (err) {
+      setAlert({ type: "danger", text: "Không thể tải danh sách sinh viên: " + err.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchStudents();
+}, [isAdmin, token]);
+
 
   const handleDelete = async (id) => {
     const confirmed = window.confirm(`Bạn có chắc chắn muốn xóa sinh viên ID: ${id}?`);
@@ -56,7 +59,7 @@ export default function StudentsPage() {
     return (
       <div className="container mt-5 text-center">
         <div className="alert alert-danger mb-3">
-          Bạn không có quyền xem danh sách sinh viên!
+          Bạn không có quyền truy cập trang này!
         </div>
         <button className="btn btn-primary" onClick={() => navigate("/homepage")}>
           Trở về trang chủ
@@ -65,13 +68,20 @@ export default function StudentsPage() {
     );
   }
 
+  // Lọc sinh viên theo ID hoặc tên
+  const filteredStudents = students.filter(
+    (s) =>
+      s.id.toString().includes(searchTerm) ||
+      s.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const indexOfLastStudent = currentPage * pageSize;
   const indexOfFirstStudent = indexOfLastStudent - pageSize;
-  const currentStudents = students.slice(indexOfFirstStudent, indexOfLastStudent);
-  const totalPages = Math.ceil(students.length / pageSize);
+  const currentStudents = filteredStudents.slice(indexOfFirstStudent, indexOfLastStudent);
+  const totalPages = Math.ceil(filteredStudents.length / pageSize);
 
   return (
-    <div className="container mt-5">
+    <div className="container mt-3">
       <h2 className="mb-4 text-center">Danh sách sinh viên</h2>
 
       {alert && (
@@ -85,7 +95,17 @@ export default function StudentsPage() {
         <button className="btn btn-secondary" onClick={() => navigate("/homepage")}>
           Trở về trang chủ
         </button>
-        <div className="d-flex gap-2">
+        <div className="d-flex gap-3">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Tìm theo ID hoặc tên..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1); // reset về trang đầu khi tìm kiếm
+            }}
+          />
           <Link to="/students/add" className="btn btn-success">
             <i className="bi bi-plus-circle"></i> Thêm
           </Link>
@@ -97,7 +117,7 @@ export default function StudentsPage() {
         <table className="table table-bordered table-striped mb-0">
           <thead className="table-dark">
             <tr>
-              <th>ID Sinh viên</th>
+              <th>Mã Sinh viên</th>
               <th>Họ tên</th>
               <th>Giới tính</th>
               <th>Ngày sinh</th>
@@ -117,16 +137,10 @@ export default function StudentsPage() {
                   <td>{s.address}</td>
                   <td>{s.userId}</td>
                   <td>
-                    <Link
-                      to={`/students/edit/${s.id}`}
-                      className="btn btn-warning btn-sm me-2"
-                    >
+                    <Link to={`/students/edit/${s.id}`} className="btn btn-warning btn-sm me-2">
                       <i className="bi bi-pencil-square"></i> Sửa
                     </Link>
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleDelete(s.id)}
-                    >
+                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(s.id)}>
                       <i className="bi bi-trash"></i> Xóa
                     </button>
                   </td>
@@ -141,43 +155,31 @@ export default function StudentsPage() {
         </table>
       </div>
 
-      {/* Phân trang kiểu Bootstrap, nằm chính giữa */}
-      <div className="d-flex justify-content-center mt-3">
-        <nav>
-          <ul className="pagination">
-            <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-              <button
-                className="page-link"
-                onClick={() => setCurrentPage(currentPage - 1)}
-              >
-                Trang trước
-              </button>
-            </li>
+      {/* Phân trang */}
+      <div className="d-flex justify-content-center mt-3 align-items-center gap-2">
+        <button className="btn btn-secondary" disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>
+          Trang trước
+        </button>
 
-            {Array.from({ length: totalPages }, (_, i) => (
-              <li
-                key={i + 1}
-                className={`page-item ${currentPage === i + 1 ? "active" : ""}`}
-              >
-                <button
-                  className="page-link"
-                  onClick={() => setCurrentPage(i + 1)}
-                >
-                  {i + 1}
-                </button>
-              </li>
-            ))}
+        <input
+          type="number"
+          className="form-control"
+          style={{ width: "80px" }}
+          min="1"
+          max={totalPages}
+          value={currentPage}
+          onChange={(e) => {
+            const page = Number(e.target.value);
+            if (page >= 1 && page <= totalPages) {
+              setCurrentPage(page);
+            }
+          }}
+        />
 
-            <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-              <button
-                className="page-link"
-                onClick={() => setCurrentPage(currentPage + 1)}
-              >
-                Trang sau
-              </button>
-            </li>
-          </ul>
-        </nav>
+        <span>/ {totalPages}</span>
+        <button className="btn btn-secondary" disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>
+          Trang sau
+        </button>
       </div>
     </div>
   );

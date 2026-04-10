@@ -7,14 +7,19 @@ export default function UserManagementPage() {
   const { role, token } = useContext(AuthContext);
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const usersPerPage = 6;
+  const [loading, setLoading] = useState(true); // thêm state loading
+  const usersPerPage = 30;
   const navigate = useNavigate();
 
   const isAdmin = checkAdmin(role);
 
   useEffect(() => {
     if (isAdmin) {
-      getUsers(token).then(res => setUsers(res.data));
+      setLoading(true);
+      getUsers(token)
+        .then(users => setUsers(users))
+        .catch(() => setUsers([]))
+        .finally(() => setLoading(false));
     }
   }, [token, isAdmin]);
 
@@ -36,14 +41,22 @@ export default function UserManagementPage() {
     return (
       <div className="container mt-5 text-center">
         <div className="alert alert-danger mb-3">
-          Bạn không có quyền truy cập chức năng này!
+          Bạn không có quyền truy cập trang này!
         </div>
         <button
           className="btn btn-primary"
           onClick={() => navigate("/homepage")}
         >
-          Trở về trang chủ
+          Trở về 
         </button>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="container mt-5 text-center">
+        <p>Đang tải dữ liệu...</p>
       </div>
     );
   }
@@ -54,11 +67,9 @@ export default function UserManagementPage() {
   const totalPages = Math.ceil(users.length / usersPerPage);
 
   return (
-    <div className="container mt-4">
-      {/* Tiêu đề */}
+    <div className="container mt-3">
       <h2 className="text-center mb-3">Quản lý User</h2>
 
-      {/* Hàng chứa 2 nút: Trở về và Nâng quyền */}
       <div className="d-flex justify-content-between mb-3">
         <button className="btn btn-secondary" onClick={() => navigate("/homepage")}>
           Trở về trang chủ
@@ -68,10 +79,10 @@ export default function UserManagementPage() {
         </button>
       </div>
 
-      {/* Bảng user */}
       <table className="table table-bordered table-striped">
         <thead className="table-dark">
           <tr>
+            <th>User ID</th>
             <th>Tên người dùng</th>
             <th>Trạng thái</th>
             <th>Quyền</th>
@@ -81,6 +92,7 @@ export default function UserManagementPage() {
         <tbody>
           {currentUsers.map(u => (
             <tr key={u.username}>
+              <td>{u.id}</td>
               <td>{u.username}</td>
               <td>{u.status}</td>
               <td>{u.roles.map(r => r.name).join(", ")}</td>
@@ -109,42 +121,40 @@ export default function UserManagementPage() {
         </tbody>
       </table>
 
-      {/* Phân trang */}
-      <nav>
-        <ul className="pagination justify-content-center">
-          <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-            <button
-              className="page-link"
-              onClick={() => setCurrentPage(currentPage - 1)}
-            >
-              Trang trước
-            </button>
-          </li>
+      <div className="d-flex justify-content-center mt-3 align-items-center gap-2">
+        <button
+          className="btn btn-secondary"
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage(currentPage - 1)}
+        >
+          Trang trước
+        </button>
 
-          {Array.from({ length: totalPages }, (_, i) => (
-            <li
-              key={i + 1}
-              className={`page-item ${currentPage === i + 1 ? "active" : ""}`}
-            >
-              <button
-                className="page-link"
-                onClick={() => setCurrentPage(i + 1)}
-              >
-                {i + 1}
-              </button>
-            </li>
-          ))}
+        <input
+          type="number"
+          className="form-control"
+          style={{ width: "80px" }}
+          min="1"
+          max={totalPages}
+          value={currentPage}
+          onChange={(e) => {
+            const page = Number(e.target.value);
+            if (page >= 1 && page <= totalPages) {
+              setCurrentPage(page);
+            }
+          }}
+        />
 
-          <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-            <button
-              className="page-link"
-              onClick={() => setCurrentPage(currentPage + 1)}
-            >
-              Trang sau
-            </button>
-          </li>
-        </ul>
-      </nav>
+        <span>/ {totalPages}</span>
+
+        <button
+          className="btn btn-secondary"
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage(currentPage + 1)}
+        >
+          Trang sau
+        </button>
+      </div>
     </div>
   );
 }

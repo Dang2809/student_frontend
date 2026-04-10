@@ -43,7 +43,7 @@ export default function AdminPage() {
               Nâng quyền lên Admin
             </button>
             <button className="btn btn-secondary btn-sm" onClick={() => navigate("/users")}>
-              Trở về quản lý user
+              Trở về
             </button>
           </div>
         </div>

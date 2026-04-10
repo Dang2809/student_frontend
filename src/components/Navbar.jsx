@@ -8,12 +8,13 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // gọi hàm logout trong AuthContext để xóa token
-    logout();
-
-    // điều hướng về trang đăng nhập
-    navigate("/login");
+    const confirmLogout = window.confirm("Bạn có chắc chắn muốn đăng xuất không?");
+    if (confirmLogout) {
+      logout();
+      navigate("/login");
+    }
   };
+
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary px-4">

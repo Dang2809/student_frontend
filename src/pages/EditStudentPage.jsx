@@ -1,23 +1,24 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getStudentById, updateStudent } from "../api/studentApi";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext, checkAdmin } from "../context/AuthContext";
 import StudentForm from "../components/StudentForm";
 
 export default function EditStudentPage() {
-  const { token } = useContext(AuthContext);
+  const { token, role } = useContext(AuthContext);
   const { id } = useParams(); // lấy student_id từ URL
   const navigate = useNavigate();
 
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState(null);
+  const isAdmin = checkAdmin(role);
 
   useEffect(() => {
     const fetchStudent = async () => {
       try {
-        const res = await getStudentById(id, token);
-        setStudent(res.data);
+        const studentData = await getStudentById(id, token); // đã là object sinh viên
+        setStudent(studentData);
       } catch (err) {
         const msg = err.response?.data?.message || err.message || "Có lỗi xảy ra";
         setAlert({ type: "danger", text: "Không thể tải dữ liệu: " + msg });
@@ -28,7 +29,15 @@ export default function EditStudentPage() {
     fetchStudent();
   }, [id, token]);
 
-  const handleSubmit = (form) => updateStudent(id, form, token);
+  const handleSubmit = async (form) => {
+    try {
+      await updateStudent(id, form, token);
+      handleSuccess();
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || "Có lỗi xảy ra";
+      handleError(msg);
+    }
+  };
 
   const handleSuccess = () => {
     setAlert({ type: "success", text: "Cập nhật thành công!" });
@@ -45,8 +54,21 @@ export default function EditStudentPage() {
 
   if (loading) return <p className="text-center">Đang tải dữ liệu...</p>;
 
+  if (!isAdmin) {
+    return (
+      <div className="container mt-5 text-center">
+        <div className="alert alert-danger mb-3">
+          Bạn không có quyền truy cập trang này!
+        </div>
+        <button className="btn btn-primary" onClick={() => navigate("/homepage")}>
+          Trở về trang chủ
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mt-5">
+    <div className="container mt-3">
       <h2 className="mb-4 text-center">Sửa thông tin sinh viên</h2>
       {alert && <div className={`alert alert-${alert.type} text-center`}>{alert.text}</div>}
 
@@ -65,7 +87,7 @@ export default function EditStudentPage() {
           className="btn btn-secondary" 
           onClick={() => navigate("/students")}
         >
-          Trở về danh sách sinh viên
+          Trở về
         </button>
       </div>
     </div>
