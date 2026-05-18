@@ -69,7 +69,7 @@ export default function LichSuPhucKhaoSinhVien() {
                 <td>{r.phanHoi || "-"}</td>
                 <td>{r.status}</td>
                 <td>
-                  {r.createdAt ? new Date(r.createdAt).toLocaleString() : "-"}
+                  {r.createdAt ? new Date(r.createdAt).toLocaleString() : "-"} 
                 </td>
                 <td>
                   {r.updatedAt && r.updatedAt !== r.createdAt

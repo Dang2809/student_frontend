@@ -122,6 +122,8 @@ export default function StudentsPage() {
               <th>Giới tính</th>
               <th>Ngày sinh</th>
               <th>Địa chỉ</th>
+              <th>Email</th>
+              <th>Số điện thoại</th>
               <th>User ID</th>
               <th>Hành động</th>
             </tr>
@@ -135,6 +137,8 @@ export default function StudentsPage() {
                   <td>{s.gender}</td>
                   <td>{s.dateOfBirth}</td>
                   <td>{s.address}</td>
+                  <td>{s.email}</td>
+                  <td>{s.phone}</td>
                   <td>{s.userId}</td>
                   <td>
                     <Link to={`/students/edit/${s.id}`} className="btn btn-warning btn-sm me-2">

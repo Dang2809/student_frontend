@@ -13,6 +13,8 @@ export default function StudentForm({
     gender: "MALE",
     dateOfBirth: "",
     address: "",
+    email: "",
+    phone: "",
     userId: "" // chỉ dùng khi thêm mới
   });
   const [errors, setErrors] = useState({});
@@ -33,6 +35,16 @@ export default function StudentForm({
       newErrors.dateOfBirth = "Ngày sinh không được là ngày trong tương lai";
     }
     if (!form.address.trim()) newErrors.address = "Địa chỉ không được để trống";
+    if (!form.email.trim()) {
+      newErrors.email = "Email không được để trống";
+    } else if (!/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/.test(form.email)) {
+      newErrors.email = "Email không hợp lệ";
+    }
+    if (!form.phone.trim()) {
+        newErrors.phone = "Số điện thoại không được để trống";
+    } else if (!/^(\\+84|0)[0-9]{9,10}$/.test(form.phone)) {
+        newErrors.phone = "Số điện thoại không hợp lệ";
+    }
     if (!initialData && !form.userId.trim()) newErrors.userId = "User ID bắt buộc";
 
     return newErrors;
@@ -98,6 +110,22 @@ export default function StudentForm({
         placeholder="Địa chỉ"
       />
       {errors.address && <small className="text-danger">{errors.address}</small>}
+
+      <input
+        className="form-control mb-2"
+        value={form.email}
+        onChange={(e) => setForm({ ...form, email: e.target.value })}
+        placeholder="Email"
+      />
+      {errors.email && <small className="text-danger">{errors.email}</small>}
+
+      <input
+         className="form-control mb-2"
+         value={form.phone}
+         onChange={(e) => setForm({ ...form, phone: e.target.value })}
+         placeholder="Số điện thoại"
+      />
+         {errors.phone && <small className="text-danger">{errors.phone}</small>}
 
       {!initialData && (
         <>

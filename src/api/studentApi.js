@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/students"; 
+//const API_URL = "http://localhost:8080/students";
+const API_URL = "/students";
+
 // chỉnh lại URL cho đúng backend của bạn
 
 // Lấy toàn bộ danh sách sinh viên

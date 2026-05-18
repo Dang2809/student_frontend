@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/subjects";
+//const API_URL = "http://localhost:8080/subjects";
+const API_URL = "/subjects";
 
 // Lấy toàn bộ môn học
 export const getAllSubjects = async (token) => {

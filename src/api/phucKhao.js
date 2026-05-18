@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api/phuckhao";
+//const API_URL = "http://localhost:8080/api/phuckhao";
+const API_URL = "/api/phuckhao";
 
 // Sinh viên gửi yêu cầu phúc khảo
 export const submitPhucKhao = async (data, token) => {
@@ -19,13 +20,14 @@ export const submitPhucKhao = async (data, token) => {
 };
 
 // Admin lấy danh sách yêu cầu pending
-export const getPendingPhucKhao = async (token) => {
+/**export const getPendingPhucKhao = async (token) => {
   const res = await axios.get(`${API_URL}/pending`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.data.data;
-};
+};**/
 
+//Admin lấy danh sách tất cả yêu cầu phúc khảo
 export const getAllPhucKhao = async (token) => {
   const res = await axios.get(`${API_URL}/all`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -53,3 +55,5 @@ export const getStudentPhucKhao = async (studentId, token) => {
   });
   return res.data.data;
 };
+
+

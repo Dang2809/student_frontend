@@ -120,12 +120,15 @@ export default function StudentInfoPoint() {
               <th>Điểm quá trình</th>
               <th>Điểm thi</th>
               <th>Điểm tổng kết</th>
-              <th>Phúc khảo</th>
+              <th>Hành động</th>
             </tr>
           </thead>
           <tbody>
             {points.map((p) => {
-              const alreadyRequested = phucKhaoList.some(pk => pk.subjectId === p.subjectId && pk.semester === p.semester);
+              //const alreadyRequested = phucKhaoList.some(pk => pk.subjectId === p.subjectId && pk.semester === p.semester);
+              const pk = phucKhaoList.find(
+                pk => pk.subjectId === p.subjectId && pk.semester === p.semester
+              );
               return (
                 <tr key={p.id}>
                   <td>{p.subjectId}</td>
@@ -133,7 +136,17 @@ export default function StudentInfoPoint() {
                   <td>{p.processScore}</td>
                   <td>{p.examScore}</td>
                   <td>{p.finalScore}</td>
-                  <td>{alreadyRequested ? <span className="text-muted">Đã gửi</span> : <button className="btn btn-warning btn-sm" onClick={() => handlePhucKhao(p)}>Phúc khảo</button>}</td>
+                  <td>
+                    {pk ? (
+                      <span className="text-muted">
+                        Đã gửi ({pk.feedbackSummary})
+                      </span>
+                    ) : (
+                      <button className="btn btn-warning btn-sm" onClick={() => handlePhucKhao(p)}>
+                        Phúc khảo
+                      </button>
+                    )}
+                  </td>
                 </tr>
               );
             })}

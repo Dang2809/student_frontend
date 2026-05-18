@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/points";
+//const API_URL = "http://localhost:8080/points";
+const API_URL = "/points";
 
 // Nhập điểm mới
 export const createPoint = async (point, token) => {
